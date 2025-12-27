@@ -5,8 +5,8 @@ use std::time::Duration;
 async fn handler(
 ) -> Result<Response, (StatusCode, ())> {
     let output_stream: AsyncStream<Result<bytes::Bytes, Error>, _> = async_stream::stream! {
-        yield Ok(bytes::Bytes::from_static(b"event:no-space-here\ndata:message1\n\n"));
-        tokio::time::sleep(Duration::from_secs(10)).await;
+        yield Ok(bytes::Bytes::from_static(b"event:no-space-here\ndata:data: message1\n\n"));
+        tokio::time::sleep(Duration::from_secs(3)).await;
         yield Ok(bytes::Bytes::from_static(b"event:final-event\ndata:message2\n\n"));
     };
 
@@ -18,6 +18,9 @@ async fn handler(
     );
     headers.insert("cache-control", HeaderValue::from_static("no-cache"));
     headers.insert("connection", HeaderValue::from_static("keep-alive"));
+    headers.insert("transfer-encoding", HeaderValue::from_static("chunked"));
+    headers.insert("set-cookie", HeaderValue::from_static("I18nextLngHiagent=dev; Path=/; Expires=Sun, 27 Dec 2026 16:40:30 GMT; HttpOnly; SameSite=Strict"));
+    headers.insert("Vary", HeaderValue::from_static("Accept-Encoding"));
 
     Ok((headers, body).into_response())
 }
